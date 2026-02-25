@@ -1,0 +1,15 @@
+{
+  "name": "sigil",
+  "version": "1.0.0",
+  "description": "Desktop client for self-hosted Open WebUI",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^35.1.2"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  }
+}
