@@ -1,6 +1,7 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron')
 
-contextBridge.exposeInMainWorld('sigil', {
-  saveUrl: (url) => ipcRenderer.invoke('save-url', url),
-  resetApp: () => ipcRenderer.invoke('reset-app')
-});
+contextBridge.exposeInMainWorld('electronAPI', {
+  closeWindow:    () => ipcRenderer.invoke('window-close'),
+  minimizeWindow: () => ipcRenderer.invoke('window-minimize'),
+  maximizeWindow: () => ipcRenderer.invoke('window-maximize'),
+})

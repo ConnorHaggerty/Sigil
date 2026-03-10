@@ -1,56 +1,26 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron');
-const path = require('path');
-const Store = require('electron-store');
+const { app, BrowserWindow, ipcMain } = require('electron')
+const path = require('path')
 
-const store = new Store();
-
-let mainWindow;
+let win
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    title: 'Sigil',
+  win = new BrowserWindow({
+    width: 1100, height: 720,
+    frame: false,
+    transparent: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
     }
-  });
-
-  const savedUrl = store.get('owuiUrl');
-
-  if (savedUrl) {
-    // URL already saved — load Open WebUI directly
-    mainWindow.loadURL(savedUrl);
-  } else {
-    // First launch — show setup page
-    mainWindow.loadFile(path.join(__dirname, 'renderer', 'setup.html'));
-  }
+  })
+  win.loadFile('src/index.html')
+  if (process.argv.includes('--dev')) win.webContents.openDevTools({ mode: 'detach' })
 }
 
-// Save the Open WebUI URL and navigate to it
-ipcMain.handle('save-url', async (_event, url) => {
-  store.set('owuiUrl', url);
-  mainWindow.loadURL(url);
-});
+app.whenReady().then(createWindow)
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
 
-// Clear all saved data and session cookies, then reload setup
-ipcMain.handle('reset-app', async () => {
-  store.clear();
-  await session.defaultSession.clearStorageData();
-  mainWindow.loadFile(path.join(__dirname, 'renderer', 'setup.html'));
-});
-
-app.whenReady().then(createWindow);
-
-// Quit when all windows are closed (except on macOS)
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
+ipcMain.handle('window-close',    () => win.close())
+ipcMain.handle('window-minimize', () => win.minimize())
+ipcMain.handle('window-maximize', () => win.isMaximized() ? win.unmaximize() : win.maximize())
