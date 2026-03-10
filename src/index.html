@@ -356,6 +356,7 @@
 
       try
       {
+        console.log('Sending to:', `${apiBase}/v1/chat/completions`, { model: modelSelect.value, messages });
         const res = await fetch(`${apiBase}/v1/chat/completions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -400,8 +401,10 @@
                 chatContainer.scrollTop = chatContainer.scrollHeight;
               }
             }
-            catch
-            {}
+            catch (parseErr)
+            {
+              console.warn('Stream parse error:', parseErr, 'Line:', trimmed);
+            }
           }
         }
 
@@ -409,6 +412,7 @@
       }
       catch (err)
       {
+        console.error('Chat error:', err);
         appendMessage('error', `Error: ${err.message}`);
       }
 
